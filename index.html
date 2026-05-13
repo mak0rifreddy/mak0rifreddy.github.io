@@ -1,10 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Website</title>
+    <title>Simple Ball Grid Game</title>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #222; color: white; font-family: sans-serif; }
+        canvas { border: 2px solid #555; background: #333; }
+        .info { position: absolute; top: 10px; }
+    </style>
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p>This is a test website hosted on GitHub.</p>
+    <div class="info">Use Arrow Keys to Move</div>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game Settings
+        const gridSize = 40;
+        let player = { x: 4, y: 4, color: '#00ffcc' }; // Starting grid position
+
+        // Track key states
+        const keys = {};
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        function drawGrid() {
+            ctx.strokeStyle = '#444';
+            for (let i = 0; i <= canvas.width; i += gridSize) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+            }
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = player.color;
+            ctx.beginPath();
+            // Calculate center of the current grid cell
+            const centerX = player.x * gridSize + gridSize / 2;
+            const centerY = player.y * gridSize + gridSize / 2;
+            ctx.arc(centerX, centerY, gridSize / 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function update() {
+            // Move player based on keys (one grid cell at a time)
+            // We use a simple "debounce" logic or just move if key is pressed
+            // To make it feel snappy, we check bounds so the ball doesn't leave the screen
+            if (keys['ArrowUp'] && player.y > 0) player.y--;
+            if (keys['ArrowDown'] && player.y < (canvas.height / gridSize) - 1) player.y++;
+            if (keys['ArrowLeft'] && player.x > 0) player.x--;
+            if (keys['ArrowRight'] && player.x < (canvas.width / gridSize) - 1) player.x++;
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
+            drawPlayer();
+            // Note: In a real game, you'd use a timer to slow down grid movement
+            // but for this simple demo, we'll just run the loop
+            setTimeout(() => {
+                update();
+                requestAnimationFrame(gameLoop);
+            }, 100); // 100ms delay makes the grid movement manageable
+        }
+
+        gameLoop();
+    </script>
 </body>
 </html>
